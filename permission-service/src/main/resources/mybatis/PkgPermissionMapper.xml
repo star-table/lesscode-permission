@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.polaris.lesscode.permission.mapper.PkgPermissionMapper">
+    <update id="appendMembers">
+        UPDATE `lc_per_app_pkg_permission`
+        <set>
+            <if test="deptIds != null and deptIds.size() != 0">
+                <foreach collection="deptIds" item="did" open=" `dept_ids` = json_array_append(`dept_ids`, "
+                         separator="," close="),">
+                    '$', #{did}
+                </foreach>
+            </if>
+
+            <if test="roleIds != null and roleIds.size() != 0">
+                <foreach collection="roleIds" item="rid" open=" `role_ids` = json_array_append(`role_ids`, "
+                         separator="," close="),">
+                    '$', #{rid}
+                </foreach>
+            </if>
+
+            <if test="userIds != null and userIds.size() != 0">
+                <foreach collection="userIds" item="uid" open=" `user_ids` = json_array_append(`user_ids`, "
+                         separator="," close="),">
+                    '$', #{uid}
+                </foreach>
+            </if>
+        </set>
+        <where>
+            `org_id` = #{orgId}
+                    AND `app_package_id` = #{appPkgId}
+                    AND del_flag = 2
+        </where>
+    </update>
+
+    <select id="selectUserOfAppPkgIds" resultType="java.lang.Long">
+        SELECT p.app_package_id
+        FROM `lc_per_app_pkg_permission` p
+
+        WHERE p.`org_id` = #{orgId}
+          and p.`del_flag` = 2
+          AND (p.`scope` = 0 OR (#{userId} member of (p.`user_ids` -> '$')
+                OR JSON_OVERLAPS(p.`dept_ids` -> '$', CAST(#{deptIds} AS JSON))
+                OR JSON_OVERLAPS(p.`role_ids` -> '$', CAST(#{roleIds} AS JSON))
+                ))
+    </select>
+</mapper>

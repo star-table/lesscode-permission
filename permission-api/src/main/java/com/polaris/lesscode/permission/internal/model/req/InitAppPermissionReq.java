@@ -1,0 +1,101 @@
+package com.polaris.lesscode.permission.internal.model.req;
+
+import com.polaris.lesscode.permission.internal.model.bo.FieldAuthOptionInfoBo;
+import com.polaris.lesscode.permission.internal.model.bo.OptAuthOptionInfoBo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 应用权限组 初始化参数（内部调用）
+ *
+ * @author roamer
+ * @version v1.0
+ * @date 2020-09-02 18:24
+ */
+@ApiModel("应用权限组 初始化参数（内部调用）")
+@Data
+public class InitAppPermissionReq {
+    /**
+     * 组织ID
+     */
+    @ApiModelProperty(value = "组织ID", required = true)
+    @NotNull(message = "组织ID为空")
+    private Long orgId;
+
+    /**
+     * 应用ID
+     */
+    @ApiModelProperty(value = "应用ID", required = true)
+    @NotNull(message = "应用ID为空")
+    private Long appId;
+
+    /**
+     * 应用类型
+     */
+    @ApiModelProperty(value = "应用类型", required = true)
+    @NotNull(message = "应用类型为空")
+    private Integer appType;
+
+    /**
+     * 操作权限选项
+     */
+    @ApiModelProperty(value = "操作权限选项", notes = "外部表单需要设置")
+    private List<OptAuthOptionInfoBo> optAuthOptions;
+
+    /**
+     * 字段权限选项
+     */
+    @ApiModelProperty(value = "字段权限选项", notes = "外部表单需要设置")
+    private List<FieldAuthOptionInfoBo> fieldAuthOptions;
+
+    /**
+     * 是否是外部表单
+     */
+    @ApiModelProperty(value = "是否是外部表单", notes = "是否是外部表单,默认false")
+    private Boolean isExt;
+
+    /**
+     * 组件类型
+     */
+    @ApiModelProperty(value = "组件类型", notes = "外部表单需要设置")
+    private String componentType;
+
+    /**
+     * 是否可新增权限组
+     */
+    @ApiModelProperty(value = "是否可新增权限组", notes = "外部表单需要设置,默认true")
+    private Boolean creatable;
+
+    /**
+     * 操作用户ID
+     */
+    @ApiModelProperty(value = "操作用户ID", required = true)
+    @NotNull(message = "操作用户为空")
+    private Long userId;
+
+//    /**
+//     * 字段配置
+//     */
+//    @ApiModelProperty(value = "字段配置")
+//    private String config;
+
+    /**
+     * 默认权限组类型（为空则不初始化），1 初始化表单的权限组，2 初始化仪表盘的权限组，3 初始化北极星项目的权限组
+     * （初始化管理组的逻辑暂时放在permission服务中来做，因为北极星这种属于公司内部服务）
+     * @author nico
+     **/
+    @ApiModelProperty(value = "默认权限组类型")
+    private Integer defaultPermissionGroupType;
+
+    public InitAppPermissionReq() {
+        optAuthOptions = new ArrayList<>();
+        fieldAuthOptions = new ArrayList<>();
+        isExt = false;
+        creatable = true;
+    }
+}

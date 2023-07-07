@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.polaris.lesscode.permission.mapper.AppPermissionGroupMapper">
+    <select id="selectUserAppPerGroupsByUserAndApp"
+            resultType="com.polaris.lesscode.permission.entity.PerAppPermissionGroup">
+        SELECT g.*
+        FROM `lc_per_app_permission_group` g
+                     JOIN `lc_per_app_permission_group_member` m
+                ON m.`permission_group_id` = g.`id`
+                        AND m.`org_id` = g.`org_id`
+                        AND m.`del_flag` = 2
+                        AND (#{userId} member of (m.`user_ids` -> '$')
+                        OR JSON_OVERLAPS(m.`dept_ids` -> '$', CAST(#{deptIds} AS JSON))
+                        OR JSON_OVERLAPS(m.`role_ids` -> '$', CAST(#{roleIds} AS JSON))
+                           )
+        WHERE g.`org_id` = #{orgId}
+          AND g.`app_id` = #{appId}
+          and g.`del_flag` = 2
+    </select>
+
+    <select id="selectUserAppPerGroupsByUserAndApps"
+            resultType="com.polaris.lesscode.permission.entity.PerAppPermissionGroup">
+        SELECT g.*
+        FROM `lc_per_app_permission_group` g
+                 JOIN `lc_per_app_permission_group_member` m
+                      ON m.`permission_group_id` = g.`id`
+                          AND m.`org_id` = g.`org_id`
+                          AND m.`del_flag` = 2
+                          AND (#{userId} member of (m.`user_ids` -> '$')
+                        OR JSON_OVERLAPS(m.`dept_ids` -> '$', CAST(#{deptIds} AS JSON))
+                        OR JSON_OVERLAPS(m.`role_ids` -> '$', CAST(#{roleIds} AS JSON))
+                             )
+        WHERE g.`org_id` = #{orgId}
+          AND g.`app_id` in
+            <foreach collection="appIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+          and g.`del_flag` = 2
+    </select>
+
+    <select id="selectUserAppPerGroupsByUser"
+            resultType="com.polaris.lesscode.permission.entity.PerAppPermissionGroup">
+        SELECT g.*
+        FROM `lc_per_app_permission_group` g
+                     JOIN `lc_per_app_permission_group_member` m
+                ON m.`permission_group_id` = g.`id`
+                        AND m.`org_id` = g.`org_id`
+                        AND m.`del_flag` = 2
+                        AND (#{userId} member of (m.`user_ids` -> '$')
+                        OR JSON_OVERLAPS(m.`dept_ids` -> '$', CAST(#{deptIds} AS JSON))
+                        OR JSON_OVERLAPS(m.`role_ids` -> '$', CAST(#{roleIds} AS JSON))
+                           )
+        WHERE g.`org_id` = #{orgId}
+          and g.`del_flag` = 2
+    </select>
+
+
+    <select id="selectAppPerGroupsByRole"
+            resultType="com.polaris.lesscode.permission.entity.PerAppPermissionGroup">
+        SELECT g.*
+        FROM `lc_per_app_permission_group` g
+                     JOIN `lc_per_app_permission_group_member` m
+                ON m.`permission_group_id` = g.`id`
+                        AND m.`org_id` = g.`org_id`
+                        AND m.`del_flag` = 2
+                        AND JSON_OVERLAPS(m.`role_ids` -> '$', CAST(#{roleIds} AS JSON))
+        WHERE g.`org_id` = #{orgId}
+          and g.`del_flag` = 2
+    </select>
+
+<!--    <update id="updateFieldAuthToPerGroup">-->
+<!--        UPDATE `lc_per_app_permission_group`-->
+<!--        <set>-->
+<!--            &lt;!&ndash;先删除&ndash;&gt;-->
+<!--            <if test="deleteFields != null and deleteFields.size() != 0">-->
+<!--                <foreach collection="deleteFields" item="value" open=" `field_auth` = json_remove(`field_auth`, "-->
+<!--                         separator="," close="),">-->
+<!--                    concat('$.', #{value})-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--            &lt;!&ndash;添加&ndash;&gt;-->
+<!--            <if test="saveFieldMap != null and !saveFieldMap.empty">-->
+<!--                <foreach collection="saveFieldMap.entrySet()" index="key" item="value"-->
+<!--                         open=" `field_auth` = json_set(`field_auth`, "-->
+<!--                         separator="," close="),">-->
+<!--                    concat('$.', #{key}), #{value}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--        </set>-->
+<!--        <where>-->
+<!--            `org_id` = #{orgId}-->
+<!--                    AND `app_id` = #{appId}-->
+<!--                    AND del_flag = 2-->
+<!--        </where>-->
+<!--    </update>-->
+</mapper>
